@@ -1,0 +1,231 @@
+﻿@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div id="main-check-trans" class="container mb-5 pb-5 custom-font transition-section fade-out">
+    <h2 class="mb-4">Checkout</h2>
+
+    <!-- List of Products -->
+    <div class="list-item mb-2">
+        
+    </div>
+
+    <!-- Total Pembayaran -->
+    <div class="text-end mb-4">
+        <h5>Total Payment: <span id="total-payment" class="fw-bold">Rp0</span></h5>
+    </div>
+
+    <!-- Form Pembeli -->
+    <div class="card p-4 shadow-sm" style="border-radius: 12px;">
+        <h5 class="mb-3">Buyer Information</h5>
+        <form id="checkoutForm">
+            <div class="mb-3">
+                <input type="text" class="form-control" id="name" placeholder="Name" required>
+                <small class="text-danger" id="error-name"></small>
+            </div>
+            <div class="mb-3">
+                <input type="email" class="form-control" id="email" placeholder="email@example.com" required>
+                <small class="text-danger" id="error-email"></small>
+            </div>
+            <div class="mb-3">
+                <textarea class="form-control" id="address" rows="2" placeholder="Address" required></textarea>
+                <small class="text-danger" id="error-address"></small>
+            </div>
+            <div class="mb-4">
+                <input type="text" class="form-control" id="phone" placeholder="Phone Number: +62xxxxxxxxxx" required>
+                <small class="text-danger" id="error-phone"></small>
+            </div>
+            <div class="row mt-2 py-2">
+                <div class="col-6 pe-1">
+                    <button id="btn-back" type="button" class="btn btn-outline-secondary w-100" style="border-radius: 10px;">
+                        <i class="fas fa-arrow-left me-1"></i> Back
+                    </button>
+                </div>
+                <div class="col-6 ps-1">
+                    <button id="pay-now" type="submit" class="btn btn-success w-100" style="border-radius: 10px;">
+                        Pay Now
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/js/chekcOut.js" asp-append-version="true"></script>
+<script>
+    const cartItems = JSON.parse(localStorage.getItem('cartItems')) || {};
+    const main = document.getElementById('main-check-trans');
+
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            fadeIn();
+
+            attachButtonEvents();
+            updateTotalPrice();
+        }, 100);
+    });
+
+    // window.addEventListener('DOMContentLoaded', () => {
+    //     const cartData = cartItems;
+    //     const container = document.querySelector('.list-item'); 
+    //     const totalElement = document.querySelector('.text-end span.fw-bold');
+
+    //     container.innerHTML = '';
+    //     let totalPayment = 0;
+
+    //     for (const [name, item] of Object.entries(cartData)) {
+    //         const subtotal = item.price * item.quantity;
+    //         totalPayment += subtotal;
+
+    //         const element = document.createElement('div');
+    //         element.className = 'd-flex justify-content-between align-items-start checkout-item pt-4';
+    //         element.setAttribute('data-name', name);
+    //         element.innerHTML = `
+    //             <img src="${item.image}" alt="${name}" class="me-3 align-self-center" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;">
+    //             <div class="flex-grow-1">
+    //                 <h6 class="mb-1">${name}</h6>
+    //                 <p class="mb-1">Price: Rp${item.price.toLocaleString()}</p>
+    //                 <p class="mb-1">Amount: <span class="item-quantity">${item.quantity}</span></p>
+    //                 <p class="fw-bold mb-2">Total: <span class="item-total">Rp${subtotal.toLocaleString()}</span></p>
+    //                 <input type="text" class="form-control form-control-sm" placeholder="Note...">
+    //             </div>
+    //             <div class="ms-3 d-flex flex-column justify-content-between align-items-end">
+    //                 <button class="btn btn-outline-secondary btn-sm btn-plus mb-2" style="width: 32px; height: 32px;">
+    //                     <i class="fas fa-plus"></i>
+    //                 </button>
+    //                 <button class="btn btn-outline-secondary btn-sm btn-minus" style="width: 32px; height: 32px;">
+    //                     <i class="fas fa-minus"></i>
+    //                 </button>
+    //             </div>
+    //         `;
+    //         container.appendChild(element);
+    //     }
+
+    //     totalElement.textContent = 'Rp' + totalPayment.toLocaleString();
+    // });
+
+    document.getElementById('btn-back').addEventListener('click', (e) => {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Your current order will be reset.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, go back',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fadeOut();
+
+                setTimeout(() => {
+                    window.location.href = '/Product/Index';
+                }, 500);
+            }
+        });
+    });
+
+    // document.getElementById('pay-now').addEventListener('click', (e) => {
+    //     e.preventDefault();
+
+    //     Swal.fire({
+    //         title: 'Proceed to Payment?',
+    //         text: 'Make sure all the information is correct.',
+    //         icon: 'question',
+    //         showCancelButton: true,
+    //         confirmButtonText: 'Yes, Pay Now',
+    //         cancelButtonText: 'Cancel',
+    //         confirmButtonColor: '#28a745',
+    //         cancelButtonColor: '#6c757d'
+    //     }).then(result => {
+    //         if (result.isConfirmed) {
+    //             const buyerData = {
+    //                 name: document.getElementById('name').value.trim(),
+    //                 email: document.getElementById('email').value.trim(),
+    //                 address: document.getElementById('address').value.trim(),
+    //                 phone: document.getElementById('phone').value.trim()
+    //             };
+
+    //             const cartItems = JSON.parse(localStorage.getItem('cartItems')) || {};
+
+    //             console.log('🧾 Buyer Info:', buyerData);
+    //             console.log('🛒 Cart Items:', cartItems);
+
+    //             // Setelah ini bisa lanjut ke proses Snap Midtrans (nanti)
+    //         }
+    //     });
+    // });
+
+    function formatRupiah(angka) {
+        return 'Rp' + angka.toLocaleString('id-ID');
+    }
+
+    function updateTotalPrice() {
+        let total = 0;
+        Object.keys(cartItems).forEach(key => {
+            total += cartItems[key].price * cartItems[key].quantity;
+        });
+        document.getElementById('total-payment').textContent = formatRupiah(total);
+    }
+
+    function attachButtonEvents() {
+        document.querySelectorAll('.checkout-item').forEach(itemEl => {
+            const itemName = itemEl.getAttribute('data-name');
+            const price = cartItems[itemName].price;
+
+            const qtyEl = itemEl.querySelector('.item-quantity');
+            const totalEl = itemEl.querySelector('.item-total');
+            const btnPlus = itemEl.querySelector('.btn-plus');
+            const btnMinus = itemEl.querySelector('.btn-minus');
+
+            btnPlus.addEventListener('click', () => {
+                cartItems[itemName].quantity++;
+                qtyEl.textContent = cartItems[itemName].quantity;
+                totalEl.textContent = formatRupiah(cartItems[itemName].quantity * price);
+                updateTotalPrice();
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            });
+
+            btnMinus.addEventListener('click', () => {
+                if (cartItems[itemName].quantity > 1) {
+                    cartItems[itemName].quantity--;
+                    qtyEl.textContent = cartItems[itemName].quantity;
+                    totalEl.textContent = formatRupiah(cartItems[itemName].quantity * price);
+                    updateTotalPrice();
+                    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                } else {
+                    Swal.fire({
+                        title: 'Remove item?',
+                        text: `Remove "${itemName}" from your order?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, remove it',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6'
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            delete cartItems[itemName];
+                            itemEl.remove();
+                            updateTotalPrice();
+                            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    function fadeIn() {
+        main.classList.remove('fade-out');
+        main.classList.add('fade-in');
+    }
+
+    function fadeOut() {
+        main.classList.remove('fade-in');
+        main.classList.add('fade-out');
+    }
+
+</script>

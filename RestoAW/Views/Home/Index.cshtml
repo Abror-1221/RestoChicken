@@ -1,0 +1,114 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<!-- Page Utama -->
+<div id="main-content" class="text-center custom-font transition-section fade-out mt-5 pt-5">
+    <h1 class="display-4 mb-4">Welcome</h1>
+
+    <!-- Test DB remote connection (Indicator) -->
+    @* <p style="color: green; font-weight: bold">@ViewBag.DbTest</p> *@
+
+    <button id="btn-new" type="button" class="btn btn-sm custom-button-1 my-3">
+        New Order
+    </button>
+    <br />
+    <button id="btn-check" type="button" class="btn btn-sm custom-button-1">
+        Check Order
+    </button>
+</div>
+
+<!-- Page Input Kode Transaksi Status -->
+<div id="check-section" class="text-center custom-font pt-5 mt-5 transition-section fade-out position-absolute top-0 start-0 w-100">
+    <h2 class="mb-3">Enter Email</h2>
+    <input type="text" class="form-control mb-3 mx-auto" style="max-width: 300px;" placeholder="email@example.com" />
+
+    <div class="d-flex justify-content-center gap-3">
+        <button id="btn-back" type="button" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back
+        </button>
+        <button id="btn-check-trans" type="button" class="btn btn-warning">
+            Check <i class="fas fa-arrow-right ms-1"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+    const main = document.getElementById('main-content');
+    const check = document.getElementById('check-section');
+
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            fadeIn_main();
+        }, 100);
+    });
+
+    document.getElementById('btn-new').addEventListener('click', () => {
+        fadeOut_main();
+
+        setTimeout(() => {
+            window.location.href = '/Product/Index';
+        }, 500);
+    });
+
+    document.getElementById('btn-check').addEventListener('click', () => {
+        fadeOut_main();
+
+        setTimeout(() => {
+            fadeIn_check();
+        }, 500);
+    });
+
+    document.getElementById('btn-back').addEventListener('click', () => {
+        fadeOut_check();
+
+        setTimeout(() => {
+            fadeIn_main();
+        }, 500);
+    });
+
+    document.getElementById('btn-check-trans').addEventListener('click', () => {
+        const emailInput = document.querySelector('#check-section input');
+        const email = emailInput.value.trim();
+
+        if (!email) {
+            Swal.fire("Input Required", "Please enter your email first.", "warning");
+            return;
+        }
+
+        Swal.fire({
+            title: "Checking...",
+            text: "Please wait while we fetch your transaction history.",
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        setTimeout(() => {
+            const encodedEmail = encodeURIComponent(email);
+            window.location.href = `/Product/Transactions?email=${encodedEmail}&status=non`;
+        }, 1000);
+    });
+
+    function fadeIn_check() {
+        check.classList.remove('fade-out');
+        check.classList.add('fade-in');
+    }
+
+    function fadeOut_check() {
+        check.classList.remove('fade-in');
+        check.classList.add('fade-out');
+    }
+
+    function fadeIn_main() {
+        main.classList.remove('fade-out');
+        main.classList.add('fade-in');
+    }
+
+    function fadeOut_main() {
+        main.classList.remove('fade-in');
+        main.classList.add('fade-out');
+    }
+
+</script>

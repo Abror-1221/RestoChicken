@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Resto A&amp;W</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/RestoAW.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="###"></script>
+
+</head>
+<body class="d-flex flex-column min-vh-100" style="background-color: #ffe0b2;">
+    <main class="flex-grow-1">
+        @RenderBody()
+    </main>
+
+    <footer class="border-top footer text-center text-lg-start" style="background-color: #db6930;">
+        <div class="container d-flex justify-content-center align-items-center py-2 gap-2 flex-wrap">
+            <!-- Left Buttons -->
+            <button type="button" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;background-color: #54456b;">
+                <i class="fab fa-facebook-f fa-sm"></i>
+            </button>
+            <button type="button" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;background-color: #54456b;">
+                <i class="fab fa-youtube fa-sm"></i>
+            </button>
+
+            <!-- Center Logo -->
+            <div class="mx-2">
+                <img src="/images/AWlogo.png" alt="Logo" style="height: 40px;" />
+            </div>
+
+            <!-- Right Buttons -->
+            <button type="button" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;background-color: #54456b;">
+                <i class="fab fa-instagram fa-sm"></i>
+            </button>
+            <button type="button" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;background-color: #54456b;">
+                <i class="fab fa-twitter fa-sm"></i>
+            </button>
+        </div>
+
+        <!-- Copyright -->
+        <div class="text-center text-white p-2" style="background-color: rgba(0, 0, 0, 0.2); font-size: 0.875rem;">
+            <div class="mx-auto" style="max-width: 360px;">
+                © 2025 Copyright:
+                <a class="text-white" href="#">Resto A&amp;W</a>
+            </div>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

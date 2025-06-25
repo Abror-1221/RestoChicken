@@ -1,0 +1,229 @@
+﻿@model List<Product>
+
+@{
+    ViewData["Title"] = "Product Menu";
+}
+
+<!-- Product List -->
+<div id="main-content-list" class="container my-5 d-flex flex-column justify-content-between transition-section fade-out">
+    <div class="d-flex flex-wrap justify-content-start gap-3">
+        @foreach (var item in Model)
+        {
+            <div class="card text-center card-font-small" data-product-id="@item.ProductId" style="width: 180px; border-radius: 20px;">
+                <img class="card-img-top" src="@item.ImageURL" alt="@item.Name"
+                     style="border-radius: 20px; height: 130px; object-fit: cover;">
+                <div class="card-body px-2 py-0 my-2">
+                    <h5 class="card-title mb-1">@item.Name</h5>
+                    <p class="card-text fw-bold mb-0">Rp @item.Price.ToString("N0")</p>
+
+                    <hr class="my-2" />
+
+                    <div class="d-flex justify-content-between align-items-center px-2">
+                        <button class="btn btn-outline-secondary btn-sm btn-minus px-2 py-1" style="border-radius: 8px;">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="fw-bold card-qty" style="width: 40px; text-align: center;">0</span>
+                        <button class="btn btn-outline-secondary btn-sm btn-plus px-2 py-1" style="border-radius: 8px;">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <button class="btn btn-warning btn-sm btn-cart w-100 mt-2" style="max-width: 150px; border-radius: 10px;">
+                        <i class="fas fa-shopping-cart"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Cart Preview Table -->
+<div id="cart-table" class="table-responsive my-4 mx-5 px-5 transition-section fade-out">
+    <table class="table table-bordered text-center table-orangeline" style="table-layout: fixed;">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">List Item</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Total Price</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="4" class="text-muted">No items selected</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Button Action -->
+<div id="btn-section" class="d-flex justify-content-center mt-2 pt-2 mb-5 pb-5 transition-section fade-out">
+    <button id="btn-back" class="btn btn-outline-secondary fw-bold fs-6 custom-button-2 mx-1">
+        <i class="fas fa-arrow-left me-1"></i> Back
+    </button>
+    <button id="btn-clear" type="button" class="btn btn-outline-danger fw-bold fs-6 custom-button-2 mx-1">
+        Clear All
+    </button>
+    <button id="btn-checkout" type="button" class="btn btn-warning btn-sm fw-bold fs-6 custom-button-2 mx-1">
+        Check Out
+    </button>
+</div>
+
+<script>
+    const cartItems = {};
+    const main = document.getElementById('main-content-list');
+    const cartTable = document.getElementById('cart-table');
+    const btnCheck = document.getElementById('btn-section');
+
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            fadeIn();
+        }, 100);
+    });
+
+    document.getElementById('btn-back').addEventListener('click', () => {
+        fadeOut();
+
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 500);
+    });
+
+    document.getElementById('btn-clear').addEventListener('click', () => {
+        for (let key in cartItems) {
+            delete cartItems[key];
+        }
+        document.querySelectorAll('.card-qty').forEach(span => {
+            span.textContent = '0';
+        });
+        renderCartTable();
+    });
+
+    document.getElementById('btn-checkout').addEventListener('click', () => {
+        if (Object.keys(cartItems).length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cart is empty',
+                text: 'Please select at least one item before checking out.',
+                confirmButtonColor: '#db6930'
+            });
+            return;
+        }
+
+        fadeOut();
+
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+        setTimeout(() => {
+            window.location.href = '/Product/CheckOut';
+        }, 500);
+    });
+
+    document.querySelectorAll('.card').forEach(card => {
+        const productId = card.getAttribute('data-product-id');
+
+        const plusBtn = card.querySelector('.btn-plus');
+        const minusBtn = card.querySelector('.btn-minus');
+        const cartBtn = card.querySelector('.btn-cart');
+        const qtySpan = card.querySelector('.card-qty');
+
+        const name = card.querySelector('.card-title').textContent.trim();
+        const priceText = card.querySelector('.card-text').textContent.trim();
+        const price = parseInt(priceText.replace(/\D/g, ''));
+        const image = card.querySelector('.card-img-top').getAttribute('src');
+
+        let qty = 0;
+
+        plusBtn.addEventListener('click', () => {
+            qty++;
+            qtySpan.textContent = qty;
+        });
+
+        minusBtn.addEventListener('click', () => {
+            if (qty > 0) {
+                qty--;
+                qtySpan.textContent = qty;
+            }
+        });
+
+        cartBtn.addEventListener('click', () => {
+            if (qty === 0) return;
+
+            if (cartItems[name]) {
+                cartItems[name].quantity += qty;
+            } else {
+                cartItems[name] = {
+                    productId: parseInt(productId),
+                    quantity: qty,
+                    price: price,
+                    image: image
+                };
+            }
+
+            qty = 0;
+            qtySpan.textContent = 0;
+
+            renderCartTable();
+        });
+    });
+
+    function renderCartTable() {
+        const tbody = document.querySelector('#cart-table tbody');
+        tbody.innerHTML = '';
+
+        const keys = Object.keys(cartItems);
+        if (keys.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-muted">No items selected</td></tr>`;
+            return;
+        }
+
+        keys.forEach(item => {
+            const { quantity, price } = cartItems[item];
+            const total = quantity * price;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item}</td>
+                <td>${quantity}</td>
+                <td>Rp${total.toLocaleString('id-ID')}</td>
+                <td>
+                    <button class="btn btn-sm btn-danger btn-delete" data-item="${item}">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.getAttribute('data-item');
+                delete cartItems[item];
+                renderCartTable();
+            });
+        });
+    }
+
+    function fadeIn() {
+        main.classList.remove('fade-out');
+        cartTable.classList.remove('fade-out');
+        btnCheck.classList.remove('fade-out');
+
+        main.classList.add('fade-in');
+        cartTable.classList.add('fade-in');
+        btnCheck.classList.add('fade-in');
+    }
+
+    function fadeOut() {
+        main.classList.remove('fade-in');
+        cartTable.classList.remove('fade-in');
+        btnCheck.classList.remove('fade-in');
+
+        main.classList.add('fade-out');
+        cartTable.classList.add('fade-out');
+        btnCheck.classList.add('fade-out');
+    }
+</script>
+
+

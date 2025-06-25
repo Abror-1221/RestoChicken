@@ -1,0 +1,107 @@
+﻿@model List<TransactionDTO>
+
+@{
+    ViewData["Title"] = "Payment Status";
+}
+
+<div id="transaction-page" class="container my-5 custom-font d-flex flex-column justify-content-between transition-section fade-out" style="min-height: calc(100vh - 260px);">
+    <h2 class="mb-4 fw-bold text-center">Payment Status</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered text-center table-orangeline">
+            <thead class="table-light">
+                <tr>
+                    <th>Transaction Cart Code</th>
+                    <th>Total Payment</th>
+                    <th>Made At</th>
+                    <th>Payment Done</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.CartCode</td>
+                        <td>@item.TotalPrice</td>
+                        <td>@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>
+                            @(item.PaymentTime.HasValue? item.PaymentTime.Value.ToString("yyyy-MM-dd HH:mm") : "-")
+                        </td>
+                        <td class="fw-bold text-@GetStatusColor(item.Status)">
+                            @item.Status
+                        </td>
+                    </tr>
+                }
+
+                @functions {
+                    public string GetStatusColor(string status)
+                    {
+                        return status switch
+                        {
+                            "Success" => "success",
+                            "Pending" => "warning",
+                            "Failed" => "danger",
+                            _ => "secondary"
+                        };
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Back Button -->
+    <div class="d-flex justify-content-center mt-4">
+        <a id="btn-back-home" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Home</span>
+        </a>
+    </div>
+</div>
+
+@* @if (ViewBag.Status == "success")
+{
+    <script>
+        Swal.fire("Success", "Transaction completed successfully!", "success");
+    </script>
+}
+else if (ViewBag.Status == "failed")
+{
+    <script>
+        Swal.fire("Error", "Transaction failed. Please try again.", "error");
+    </script>
+}
+else
+{
+    <script></script>
+} *@
+
+
+<script>
+    const main = document.getElementById('transaction-page');
+
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            fadeIn_Trans();
+        }, 100);
+    });
+
+    document.getElementById('btn-back-home').addEventListener('click', () => {
+        fadeOut_Trans();
+
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 500);
+    });
+
+    function fadeIn_Trans() {
+        main.classList.remove('fade-out');
+        main.classList.add('fade-in');
+    }
+
+    function fadeOut_Trans() {
+        main.classList.remove('fade-in');
+        main.classList.add('fade-out');
+    }
+</script>
+
